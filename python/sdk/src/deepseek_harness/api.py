@@ -235,6 +235,11 @@ def finish_reason(events: list[JsonObject]) -> str | None:
             continue
         data = event.get("data")
         reason = data.get("reason") if isinstance(data, dict) else None
+        if reason is None:
+            # No reason kind found; return None rather than raising.
+            # The documented SdkProtocolError is only raised when reason
+            # exists but its ``kind`` field is not a string.
+            return None
         kind = reason.get("kind") if isinstance(reason, dict) else None
         if not isinstance(kind, str):
             raise SdkProtocolError("turn/end event requires a string data.reason.kind")
